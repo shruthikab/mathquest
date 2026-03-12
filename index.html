@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MathIsFun Question Bank</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="eyebrow">MathIsFun</p>
+          <h1>Question Bank</h1>
+          <p class="subhead">
+            A clean admin view with hints and answers, plus a student-safe view with
+            just the questions. Powered by <code>config.json</code>.
+          </p>
+          <div class="role-toggle" role="group" aria-label="Choose role">
+            <button class="role-btn" data-role="student" type="button">Student View</button>
+            <button class="role-btn" data-role="admin" type="button">Admin View</button>
+          </div>
+        </div>
+        <div class="hero__panel">
+          <div class="stat">
+            <span class="stat__label">Questions</span>
+            <span class="stat__value" id="questionCount">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Papers</span>
+            <span class="stat__value" id="paperCount">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Categories</span>
+            <span class="stat__value" id="categoryCount">0</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="controls">
+        <div class="control">
+          <label for="paperFilter">Paper</label>
+          <select id="paperFilter"></select>
+        </div>
+        <div class="control">
+          <label for="categoryFilter">Category</label>
+          <select id="categoryFilter"></select>
+        </div>
+        <div class="control control--grow">
+          <label for="searchInput">Search</label>
+          <input id="searchInput" type="search" placeholder="Search by id or question text" />
+        </div>
+      </section>
+
+      <main>
+        <div id="questionGrid" class="grid"></div>
+      </main>
+    </div>
+
+    <script src="config-data.js"></script>
+    <script src="solutions.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
