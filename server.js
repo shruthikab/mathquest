@@ -25,6 +25,7 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite: 'lax',
   },
 }));
 
@@ -32,7 +33,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Static files
+// Static files - for Vercel, serve from public folder
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 
 // API Routes
@@ -54,19 +56,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server
-async function startServer() {
-  // Initialize database
-  await initializeDatabase();
+// For Vercel serverless - export the app
+module.exports = app;
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`MathQuest server running at http://localhost:${PORT}`);
-    console.log(`Accessible from other devices at http://192.168.1.24:${PORT}`);
-    console.log('Press Ctrl+C to stop');
+// Only start server if not in Vercel/lambda environment
+if (process.env.VERCEL !== '1') {
+  initializeDatabase().then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`MathQuest server running at http://localhost:${PORT}`);
+      console.log('Press Ctrl+C to stop');
+    });
   });
 }
-
-startServer().catch((error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
