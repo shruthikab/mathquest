@@ -1,0 +1,418 @@
+[
+  {
+    "id": "COLT_Q1",
+    "paper": "Colt Round",
+    "category": "Counting & Probability",
+    "question": "A small ice cream truck offers vanilla cones and chocolate cones. A customer can add sprinkles, caramel, both, or neither. How many different cones can be ordered at the truck?",
+    "hint": "Multiply the number of base flavors by the number of topping combinations.",
+    "answer": "8"
+  },
+  {
+    "id": "COLT_Q2",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "A rectangular piece of paper (5 inches by 8 inches) is folded along a diagonal line. If the length of AB is 2 inches, and ∠ ABC is a right angle, what is the length of BC?",
+    "hint": "The distance from the corner to the fold point on the original edge remains the same on the folded edge.",
+    "answer": "3"
+  },
+  {
+    "id": "COLT_Q3",
+    "paper": "Colt Round",
+    "category": "Number Theory",
+    "question": "Suppose N is a perfect square which has 3 digits. Given that the first and last digits are equal, what is the largest possible value of N?",
+    "hint": "Check squares of numbers between 10 and 31; look for hundreds digit = units digit.",
+    "answer": "676"
+  },
+  {
+    "id": "COLT_Q4",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "Of the five shapes drawn on the grid, one has a different perimeter. What is this different perimeter? (Grid side = 1).",
+    "hint": "Count the external unit segments for each shape carefully.",
+    "answer": "8"
+  },
+  {
+    "id": "COLT_Q5",
+    "paper": "Colt Round",
+    "category": "Counting & Probability",
+    "question": "Susan chooses a random integer between 10 and 99, inclusive. What is the probability that it is a perfect square?",
+    "hint": "There are 90 total integers. Count how many squares (16, 25, 36, 49, 64, 81) exist in that range.",
+    "answer": "1/15"
+  },
+  {
+    "id": "COLT_Q6",
+    "paper": "Colt Round",
+    "category": "Number Theory",
+    "question": "Three distinct prime numbers have a sum of 16. What is their product?",
+    "hint": "Since the sum is even, one of the primes must be 2.",
+    "answer": "66"
+  },
+  {
+    "id": "COLT_Q7",
+    "paper": "Colt Round",
+    "category": "Algebra",
+    "question": "Suppose (x + 2y)^2 = 9 and x + 3y = 10. What is the sum of all possible values of x?",
+    "hint": "Set x + 2y to 3 and -3, then solve the resulting systems with x + 3y = 10.",
+    "answer": "-40"
+  },
+  {
+    "id": "COLT_Q8",
+    "paper": "Colt Round",
+    "category": "Number Theory",
+    "question": "Let a, b, and c be integers greater than 1 such that abc = 34300 and gcd(a,b) = gcd(b,c) = gcd(a,c) = 1. What is the positive difference between the greatest and least of a, b, and c?",
+    "hint": "Prime factorize 34300. The distinct prime powers (2^2, 5^2, 7^3) must each be assigned to a, b, or c.",
+    "answer": "339"
+  },
+  {
+    "id": "COLT_Q9",
+    "paper": "Colt Round",
+    "category": "Counting & Probability",
+    "question": "A 10-question test is built from 4 categories. In every block of three consecutive questions, all three categories must be different. How many valid tests are possible?",
+    "hint": "4 choices for the 1st, 3 for the 2nd, and 2 for each subsequent problem.",
+    "answer": "3072"
+  },
+  {
+    "id": "COLT_Q10",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "In rectangle ABCD, the center of a circle lies on side AB. Given AE = 3, AD = 4, and DF = 6 (with points E and F as in the diagram), find the radius of the circle.",
+    "hint": "Use the coordinate of the center (x, 0) and the distance formula to points E and F.",
+    "answer": "25/6"
+  },
+  {
+    "id": "COLT_Q11",
+    "paper": "Colt Round",
+    "category": "Counting & Probability",
+    "question": "You win if your result is at least n. Game A: roll two 6-sided dice and add them. Game B: roll one 12-sided die. For what value of n are the win probabilities equal?",
+    "hint": "Compute P(total of two 6-sided dice >= n) and compare with P(one 12-sided die >= n).",
+    "answer": "8"
+  },
+  {
+    "id": "COLT_Q12",
+    "paper": "Colt Round",
+    "category": "Number Theory",
+    "question": "There is a prime p such that 10!/p is a perfect square. What is p?",
+    "hint": "Find the prime factor of 10! that has an odd exponent.",
+    "answer": "7"
+  },
+  {
+    "id": "COLT_Q13",
+    "paper": "Colt Round",
+    "category": "Algebra",
+    "question": "In base b, the equation 17 × 18 = 2 × 127 is true. Find b.",
+    "hint": "Expand into base 10: (b+7)(b+8) = 2(b^2 + 2b + 7).",
+    "answer": "14"
+  },
+  {
+    "id": "COLT_Q14",
+    "paper": "Colt Round",
+    "category": "Algebra",
+    "question": "For each integer n from 1 to 98, Lenny computes (n+1)!/(n-1)!. What is the sum of all those values?",
+    "hint": "Simplify the term to (n+1)n and use the formula for the sum of n^2 + n.",
+    "answer": "323400"
+  },
+  {
+    "id": "COLT_Q15",
+    "paper": "Colt Round",
+    "category": "Number Theory",
+    "question": "Suppose positive integers a and b satisfy ab = 6^5. How many distinct values can gcd(a,b) take?",
+    "hint": "6^5 = 2^5 * 3^5. gcd(a,b) = 2^x * 3^y where 2x <= 5 and 2y <= 5.",
+    "answer": "9"
+  },
+  {
+    "id": "COLT_Q16",
+    "paper": "Colt Round",
+    "category": "Number Theory",
+    "question": "Children have distinct prime ages less than 20. The set of remainders of their ages modulo 5 is equal to the set of remainders modulo 6. What is the maximum possible number of children?",
+    "hint": "Test subsets of primes {2, 3, 5, 7, 11, 13, 17, 19} to match remainder sets.",
+    "answer": "5"
+  },
+  {
+    "id": "COLT_Q17",
+    "paper": "Colt Round",
+    "category": "Counting & Probability",
+    "question": "Alice and Bob each choose 3 distinct digits from 1 to 9, then arrange their chosen digits in increasing order to form a 3-digit number. What is the probability that Alice’s number is greater than Bob’s?",
+    "hint": "By symmetry, the probability Alice's number is greater than Bob's is equal to Bob's being greater than Alice's, excluding ties.",
+    "answer": "43/84"
+  },
+  {
+    "id": "COLT_Q18",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "A figure is formed using a 60° arc and two congruent sides. Its area is 3 + 3√3 − 2π. Find the common side length.",
+    "hint": "Set the area formula for the triangle plus the sector equal to the given expression.",
+    "answer": "2"
+  },
+  {
+    "id": "COLT_Q19",
+    "paper": "Colt Round",
+    "category": "Algebra",
+    "question": "Five numbers p, q, r, s, t are in arithmetic sequence. Their sum is 25 and their product is 395. Find the sum of all possible values of pt.",
+    "hint": "The middle term r must be 5. Let the sequence be 5-2d, 5-d, 5, 5+d, 5+2d.",
+    "answer": "50"
+  },
+  {
+    "id": "COLT_Q20",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "A right triangle has side lengths 5 and 12 around the right angle. A circle has center on AC and is tangent to AB and BC. Find the circle’s radius.",
+    "hint": "The radius r satisfies the equation for the distance from the center to the line AC.",
+    "answer": "60/17"
+  },
+  {
+    "id": "COLT_Q21",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "How many ways are there to tile a 10 × 3 rectangle using ten 1 × 3 tiles?",
+    "hint": "This is a recursive problem; use the characteristic equation for 1x3 tiling.",
+    "answer": "28"
+  },
+  {
+    "id": "COLT_Q22",
+    "paper": "Colt Round",
+    "category": "Algebra",
+    "question": "A display starts at 44. One button changes n to 2n−39, and the other changes n to n+1. What is the minimum number of button presses needed to reach 2024?",
+    "hint": "Work backward from 2024 to 44 using inverse operations (n+39)/2 and n-1.",
+    "answer": "16"
+  },
+  {
+    "id": "COLT_Q23",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "In a quarter circle of radius 2, ∠AOB = 30° and ∠BOC = 45°. If CE is parallel to AB, find the shaded area shown in the diagram.",
+    "hint": "The area is the sector minus a triangle formed by the parallel line.",
+    "answer": "5pi/6 - 1/2"
+  },
+  {
+    "id": "COLT_Q24",
+    "paper": "Colt Round",
+    "category": "Number Theory",
+    "question": "Let m = 2^2023 and n = 2^3202. Find the minimum value of x+y such that 13 divides mx + ny.",
+    "hint": "Use modular arithmetic mod 13 on the powers of 2.",
+    "answer": "7"
+  },
+  {
+    "id": "COLT_Q25",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "A circle has diameter AB = 10. Point C is outside the circle, and line BC intersects the circle again at D. If AC and CD are integers and ∠ABC = 60°, find the sum of all possible values of AC.",
+    "hint": "Use the power of a point theorem and the Law of Cosines.",
+    "answer": "15"
+  },
+  {
+    "id": "COLT_Q26",
+    "paper": "Colt Round",
+    "category": "Geometry",
+    "question": "Points A and B are 1 unit apart. Find the area of the set of all points C such that 30° < ∠ACB < 60°.",
+    "hint": "The set of points is the region between two circular arcs.",
+    "answer": "pi/4 + sqrt(3)/4"
+  },
+  {
+    "id": "FOAL_Q1",
+    "paper": "Foal Round",
+    "category": "Geometry",
+    "question": "A 5 by 8 rectangle is folded along a diagonal line. If AB = 2 and ∠ABC = 90°, find BC.",
+    "hint": "Same geometry as Colt Q2.",
+    "answer": "3"
+  },
+  {
+    "id": "FOAL_Q2",
+    "paper": "Foal Round",
+    "category": "Counting & Probability",
+    "question": "An ice cream truck has 2 cone flavors. A customer may add sprinkles, caramel, both, or neither. How many different cones can be ordered?",
+    "hint": "Same as Colt Q1.",
+    "answer": "8"
+  },
+  {
+    "id": "FOAL_Q3",
+    "paper": "Foal Round",
+    "category": "Geometry",
+    "question": "Several shapes are drawn on a unit grid. One shape has a different perimeter from the others. What is that perimeter?",
+    "hint": "Same as Colt Q4.",
+    "answer": "8"
+  },
+  {
+    "id": "FOAL_Q4",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "What is the largest 3-digit perfect square whose first and last digits are the same?",
+    "hint": "Same as Colt Q3.",
+    "answer": "676"
+  },
+  {
+    "id": "FOAL_Q5",
+    "paper": "Foal Round",
+    "category": "Algebra",
+    "question": "5 distinct integers. 3 largest sum to 35. Average is 10. Sum of 2 smallest?",
+    "hint": "Total sum = 5 * 10 = 50. Subtract the sum of the largest three.",
+    "answer": "15"
+  },
+  {
+    "id": "FOAL_Q6",
+    "paper": "Foal Round",
+    "category": "Algebra",
+    "question": "Sum of real numbers x satisfying x^2 - 65 = 16.",
+    "hint": "x^2 = 81. Solve for x and sum the roots.",
+    "answer": "0"
+  },
+  {
+    "id": "FOAL_Q7",
+    "paper": "Foal Round",
+    "category": "Counting & Probability",
+    "question": "A random integer is chosen from 10 to 99 inclusive. What is the probability that it is a perfect square?",
+    "hint": "Same as Colt Q5.",
+    "answer": "1/15"
+  },
+  {
+    "id": "FOAL_Q8",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "Given N = 2468, how many positive divisors does N have?",
+    "hint": "Prime factorize 2468 = 2^2 * 617, then use the divisor-count formula.",
+    "answer": "6"
+  },
+  {
+    "id": "FOAL_Q9",
+    "paper": "Foal Round",
+    "category": "Algebra",
+    "question": "Suppose (x + 2y)^2 = 9 and x + 3y = 10. What is the sum of all possible values of x?",
+    "hint": "Same as Colt Q7.",
+    "answer": "-40"
+  },
+  {
+    "id": "FOAL_Q10",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "Three distinct prime numbers have sum 16. What is their product?",
+    "hint": "Same as Colt Q6.",
+    "answer": "66"
+  },
+  {
+    "id": "FOAL_Q11",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "There is a prime p such that 10!/p is a perfect square. Find p.",
+    "hint": "Same as Colt Q12.",
+    "answer": "7"
+  },
+  {
+    "id": "FOAL_Q12",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "The number A123B is divisible by 5, and B1A2 is divisible by 11. What is the maximum possible value of A+B?",
+    "hint": "B must be 0 or 5. Check divisibility by 11 (alternating sum) for each case.",
+    "answer": "14"
+  },
+  {
+    "id": "FOAL_Q13",
+    "paper": "Foal Round",
+    "category": "Counting & Probability",
+    "question": "A 10-question test is built from 4 categories. In every set of three consecutive questions, all three categories are different. How many valid tests are possible?",
+    "hint": "Same as Colt Q9.",
+    "answer": "3072"
+  },
+  {
+    "id": "FOAL_Q14",
+    "paper": "Foal Round",
+    "category": "Algebra",
+    "question": "Farmer John repeatedly pours milk so each next glass gets half as much as the previous one. If the ratio of the largest amount to the smallest is 32:1, how many glasses are there?",
+    "hint": "The ratio between the first and last glass after one cycle is 2^(n-1).",
+    "answer": "6"
+  },
+  {
+    "id": "FOAL_Q15",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "For integers x,y ≤ 100, find the maximum value of lcm(gcd(x,y), lcm(x,y)).",
+    "hint": "This simplifies to max lcm(x, y). Check the largest two coprime integers under 100.",
+    "answer": "9900"
+  },
+  {
+    "id": "FOAL_Q16",
+    "paper": "Foal Round",
+    "category": "Geometry",
+    "question": "A figure is formed using a 60° arc and two congruent sides. Its area is known. Find the common side length.",
+    "hint": "Same as Colt Q18.",
+    "answer": "2"
+  },
+  {
+    "id": "FOAL_Q17",
+    "paper": "Foal Round",
+    "category": "Counting & Probability",
+    "question": "You win if your result is at least n. Game A: roll two 6-sided dice and add them. Game B: roll one 12-sided die. For what value of n are the win probabilities equal?",
+    "hint": "Compute P(total of two 6-sided dice >= n) and compare with P(one 12-sided die >= n).",
+    "answer": "8"
+  },
+  {
+    "id": "FOAL_Q18",
+    "paper": "Foal Round",
+    "category": "Geometry",
+    "question": "In rectangle ABCD, the center of a circle lies on AB. Given AE = 3, AD = 4, and DF = 6 (with points E and F as in the diagram), find the circle’s radius.",
+    "hint": "Same as Colt Q10.",
+    "answer": "25/6"
+  },
+  {
+    "id": "FOAL_Q19",
+    "paper": "Foal Round",
+    "category": "Algebra",
+    "question": "Let P(x)=x^3+1. Find the sum of the coefficients of P(P(P(x))).",
+    "hint": "Evaluate the polynomial at x=1 repeatedly.",
+    "answer": "730"
+  },
+  {
+    "id": "FOAL_Q20",
+    "paper": "Foal Round",
+    "category": "Geometry",
+    "question": "Square ABCD has A(0,0) and B(0,3). The square is folded so that A lands on (2,3). Find the area of region AEFD.",
+    "hint": "Find the equation of the fold line (perpendicular bisector) and its intersections.",
+    "answer": "3.5"
+  },
+  {
+    "id": "FOAL_Q21",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "Suppose positive integers a and b satisfy ab = 6^5. How many distinct values can gcd(a,b) take?",
+    "hint": "Same as Colt Q15.",
+    "answer": "9"
+  },
+  {
+    "id": "FOAL_Q22",
+    "paper": "Foal Round",
+    "category": "Geometry",
+    "question": "In a quarter circle of radius 2, with CE parallel to AB as shown, find the shaded area.",
+    "hint": "Same as Colt Q23.",
+    "answer": "5pi/6 - 1/2"
+  },
+  {
+    "id": "FOAL_Q23",
+    "paper": "Foal Round",
+    "category": "Algebra",
+    "question": "A, B, C are increasing numbers in arithmetic progression. Also, A, C, B are in geometric progression. Find the minimum possible value of C.",
+    "hint": "Let B=A+d and C=A+2d. Use the geometric mean property C^2 = AB.",
+    "answer": "2"
+  },
+  {
+    "id": "FOAL_Q24",
+    "paper": "Foal Round",
+    "category": "Number Theory",
+    "question": "Bob’s children have distinct prime ages less than 20. The set of remainders modulo 5 equals the set of remainders modulo 6. What is the maximum possible number of children?",
+    "hint": "Same as Colt Q16.",
+    "answer": "5"
+  },
+  {
+    "id": "FOAL_Q25",
+    "paper": "Foal Round",
+    "category": "Counting & Probability",
+    "question": "A club has n members. The number of (k+1)-person committees is 2x, and the number of (k−1)-person committees is (1/3)x, where x is the number of k-person committees. Find x.",
+    "hint": "Set up ratios for binomial coefficients nCk+1/nCk and nCk-1/nCk.",
+    "answer": "165"
+  },
+  {
+    "id": "FOAL_Q26",
+    "paper": "Foal Round",
+    "category": "Counting & Probability",
+    "question": "A point is chosen uniformly at random in a 4×4 square. A circle of radius 1 is centered at that point. What is the probability that the circle intersects the square boundary at exactly 4 points?",
+    "hint": "Calculate the area of the region where the center P must be located.",
+    "answer": "(4 - pi) / 16"
+  }
+]
