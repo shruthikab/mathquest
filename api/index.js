@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
-const authRoutes = require('../api/auth');
-const importQuestionsRoutes = require('../api/import-questions');
+const authRoutes = require('./auth');
+const importQuestionsRoutes = require('./import-questions');
 const serverless = require('serverless-http');
 
 const app = express();
