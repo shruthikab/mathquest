@@ -33,8 +33,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Static files - for Vercel, serve from public folder
-app.use(express.static(path.join(__dirname, 'public')));
+// For Vercel serverless - export the app
+module.exports = app;
+
+// Static files - MUST be before API routes and catch-all
 app.use(express.static(path.join(__dirname)));
 
 // API Routes
@@ -51,7 +53,7 @@ app.get('/login-failed', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Serve index.html for all other routes (SPA fallback)
+// Serve index.html for all other routes (SPA fallback) - MUST be last
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
