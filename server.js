@@ -5,8 +5,8 @@ const session = require('express-session');
 const path = require('path');
 const { initializeDatabase } = require('./db');
 const passport = require('./passport');
-const authRoutes = require('./api/auth');
-const importQuestionsRoutes = require('./api/import-questions');
+const authRoutes = require('./lib/auth');
+const importQuestionsRoutes = require('./lib/import-questions');
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Static files - MUST come first
+// Static files
 app.use(express.static(path.join(__dirname)));
 
 // API routes
@@ -49,7 +49,7 @@ app.get('/login-failed', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Catch-all - MUST be last
+// Catch-all
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
