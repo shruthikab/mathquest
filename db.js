@@ -1,20 +1,35 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/mathisfun_db',
-});
+let pool;
+let isConnected = false;
 
-// Test database connection
-pool.on('connect', () => {
-  console.log('Connected to PostgreSQL database');
-});
+// Only create pool if DATABASE_URL is provided
+if (process.env.DATABASE_URL) {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-});
+  // Test database connection
+  pool.on('connect', () => {
+    console.log('Connected to PostgreSQL database');
+    isConnected = true;
+  });
+
+  pool.on('error', (err) => {
+    console.error('Database connection error:', err);
+    isConnected = false;
+  });
+} else {
+  console.log('No DATABASE_URL provided - running without database');
+}
 
 // Initialize database schema
 async function initializeDatabase() {
+  if (!pool || !isConnected) {
+    console.log('Skipping database initialization - no database connection');
+    return;
+  }
+
   try {
     // Create users table if it doesn't exist
     await pool.query(`
