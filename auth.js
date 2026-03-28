@@ -146,6 +146,11 @@ const AuthModule = {
     // Store auth info
     localStorage.setItem('mathquest-auth-token', this.token);
     localStorage.setItem('mathquest-user', JSON.stringify(this.user));
+
+    // Initialize the main app to load questions
+    if (typeof init === 'function') {
+      init();
+    }
   },
 
   async handleLogin(e) {
@@ -173,10 +178,6 @@ const AuthModule = {
         this.token = data.token;
         this.user = data.user;
         this.showApp();
-        // Initialize the main app now that user is logged in
-        if (typeof init === 'function') {
-          init();
-        }
       } else {
         errorEl.textContent = data.error || 'Login failed';
         errorEl.classList.remove('hidden');
@@ -215,10 +216,6 @@ const AuthModule = {
         this.token = data.token;
         this.user = data.user;
         this.showApp();
-        // Initialize the main app now that user is logged in
-        if (typeof init === 'function') {
-          init();
-        }
       } else {
         errorEl.textContent = data.error || 'Signup failed';
         errorEl.classList.remove('hidden');
