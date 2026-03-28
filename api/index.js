@@ -1,23 +1,25 @@
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
-const path = require('path');
 
-// Read the actual index.html file
-let HTML = '';
-try {
-  HTML = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-} catch (e) {
-  console.error('Could not read index.html:', e.message);
-  HTML = '<h1>Error: Could not load page</h1>';
-}
+let HTML = null;
 
-const users = new Map(); // In-memory user store
+const users = new Map();
 
 module.exports.handler = async (event, context) => {
-  const { path: urlPath, httpMethod, body, headers, queryStringParameters } = event;
-  const secret = process.env.JWT_SECRET || 'demo-secret-key-for-vercel';
-
   try {
+    const { path: urlPath, httpMethod, body, headers, queryStringParameters } = event;
+    const secret = process.env.JWT_SECRET || 'demo-secret-key-for-vercel';
+
+    // Lazy load index.html
+    if (!HTML && httpMethod === 'GET' && !urlPath.startsWith('/api/')) {
+      const fs = require('fs');
+      const path = require('path');
+      try {
+        HTML = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+      } catch (e) {
+        HTML = '<h1>Error loading page</h1>';
+      }
+    }
+
     // Health check
     if (urlPath === '/api/health' && httpMethod === 'GET') {
       return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ status: 'ok' }) };
@@ -30,11 +32,7 @@ module.exports.handler = async (event, context) => {
       const callbackUrl = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/api/auth/google/callback';
 
       if (!clientId || !clientSecret) {
-        return {
-          statusCode: 302,
-          headers: { 'Location': '/?error=Google+not+configured', 'Access-Control-Allow-Origin': '*' },
-          body: ''
-        };
+        return { statusCode: 302, headers: { 'Location': '/?error=Google+not+configured', 'Access-Control-Allow-Origin': '*' }, body: '' };
       }
 
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&scope=openid%20email%20profile`;
@@ -56,7 +54,6 @@ module.exports.handler = async (event, context) => {
         return { statusCode: 302, headers: { 'Location': '/?error=Google+not+configured', 'Access-Control-Allow-Origin': '*' }, body: '' };
       }
 
-      // Exchange code for tokens
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -64,14 +61,11 @@ module.exports.handler = async (event, context) => {
       });
 
       if (!tokenResponse.ok) {
-        const err = await tokenResponse.text();
-        console.error('Token exchange failed:', err);
+        console.error('Token exchange failed:', await tokenResponse.text());
         return { statusCode: 302, headers: { 'Location': '/?error=Token+exchange+failed', 'Access-Control-Allow-Origin': '*' }, body: '' };
       }
 
       const tokens = await tokenResponse.json();
-
-      // Get user info from Google
       const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
         headers: { 'Authorization': `Bearer ${tokens.access_token}` }
       });
@@ -81,19 +75,14 @@ module.exports.handler = async (event, context) => {
       }
 
       const googleUser = await userInfoResponse.json();
-
-      // Create or get user
       let user = users.get(googleUser.id);
       if (!user) {
-        user = { id: googleUser.id, name: googleUser.name, email: googleUser.email, googleId: googleUser.id };
+        user = { id: googleUser.id, name: googleUser.name, email: googleUser.email };
         users.set(googleUser.id, user);
       }
 
-      // Generate JWT
       const jwtToken = jwt.sign({ userId: user.id, email: user.email, name: user.name }, secret, { expiresIn: '7d' });
-
-      // Redirect to frontend with token
-      const redirectUrl = `/?google_auth=true&token=${encodeURIComponent(jwtToken)}&user=${encodeURIComponent(JSON.stringify({ id: user.id, name: user.name, email: user.email }))}`;
+      const redirectUrl = `/?google_auth=true&token=${encodeURIComponent(jwtToken)}&user=${encodeURIComponent(JSON.stringify(user))}`;
       return { statusCode: 302, headers: { 'Location': redirectUrl, 'Access-Control-Allow-Origin': '*' }, body: '' };
     }
 
@@ -127,7 +116,7 @@ module.exports.handler = async (event, context) => {
     }
 
     // Default: serve HTML
-    return { statusCode: 200, headers: { 'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*' }, body: HTML };
+    return { statusCode: 200, headers: { 'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*' }, body: HTML || '<h1>Loading...</h1>' };
   } catch (e) {
     console.error('Handler error:', e);
     return { statusCode: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: e.message }) };
