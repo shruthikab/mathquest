@@ -4,12 +4,16 @@ const AuthModule = {
   user: null,
 
   init() {
+    console.log('AuthModule.init() - URL:', window.location.search.substring(0, 100));
+
     // Check for Google OAuth callback FIRST (before any auth checks)
     this.handleGoogleCallback();
 
     // Load token from localStorage
     const savedToken = localStorage.getItem('mathquest-auth-token');
     const savedUser = localStorage.getItem('mathquest-user');
+
+    console.log('LocalStorage check:', { hasToken: !!savedToken, hasUser: !!savedUser });
 
     if (savedToken && savedUser) {
       this.token = savedToken;
@@ -29,30 +33,34 @@ const AuthModule = {
     const token = urlParams.get('token');
     const userParam = urlParams.get('user');
 
-    console.log('Google callback:', { isGoogleAuth, token: token ? 'present' : 'missing', userParam: userParam ? 'present' : 'missing' });
+    console.log('Google callback check:', {
+      isGoogleAuth: isGoogleAuth,
+      hasToken: !!token,
+      hasUser: !!userParam,
+      userParamRaw: userParam ? userParam.substring(0, 50) + '...' : 'none'
+    });
 
-    if (isGoogleAuth && token && userParam) {
+    if (isGoogleAuth === 'true' && token && userParam) {
       try {
         this.token = token;
-        // URLSearchParams already decodes, but user param was double-encoded
-        this.user = JSON.parse(decodeURIComponent(userParam));
-        console.log('Google user:', this.user);
+        // URLSearchParams already decodes URL encoding, so parse directly
+        this.user = JSON.parse(userParam);
+        console.log('SUCCESS: Google user parsed:', this.user);
         this.showApp();
 
         // Clean up URL
         window.history.replaceState({}, document.title, '/');
+        console.log('URL cleaned, app should be visible now');
       } catch (error) {
-        console.error('Failed to parse Google auth data:', error);
-        // Try without decodeURIComponent in case it's already decoded
-        try {
-          this.user = JSON.parse(userParam);
-          this.token = token;
-          this.showApp();
-          window.history.replaceState({}, document.title, '/');
-        } catch (error2) {
-          console.error('Failed to parse user (second attempt):', error2);
-        }
+        console.error('Failed to parse Google auth data:', error.message);
+        console.log('Raw userParam:', userParam);
       }
+    } else {
+      console.log('Google callback conditions not met:', {
+        isGoogleAuthTrue: isGoogleAuth === 'true',
+        hasToken: !!token,
+        hasUser: !!userParam
+      });
     }
   },
 
