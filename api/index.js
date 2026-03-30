@@ -59,13 +59,15 @@ function makeRequest(url, options) {
 
 // Vercel expects (req, res) signature
 module.exports = async (req, res) => {
-  const urlPath = req.url;
+  // Extract pathname without query string for route matching
+  const urlPath = req.url.split('?')[0];
+  const fullUrl = req.url;
   const method = req.method;
   const headers = req.headers;
   const secret = process.env.JWT_SECRET || 'demo-secret-key-for-vercel';
 
   // Parse query string
-  const queryString = urlPath.split('?')[1] || '';
+  const queryString = fullUrl.split('?')[1] || '';
   const query = {};
   queryString.split('&').forEach(function(pair) {
     var parts = pair.split('=');
