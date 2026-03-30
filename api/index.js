@@ -1,8 +1,55 @@
 const jwt = require('jsonwebtoken');
 
-let HTML = null;
+// Polyfill fetch for older Node.js versions
+const fetchGlobal = typeof fetch !== 'undefined' ? fetch : null;
+if (!fetchGlobal) {
+  // Vercel Node 16/18 might not have native fetch
+  console.log('No native fetch, will use https module');
+}
 
+let HTML = null;
 const users = new Map();
+
+// Helper to make HTTP requests without fetch dependency
+const makeRequest = (url, options) => {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const isHttps = urlObj.protocol === 'https:';
+    const httpModule = isHttps ? require('https') : require('http');
+
+    const requestData = options.body;
+    const headers = options.headers || {};
+
+    const reqOptions = {
+      hostname: urlObj.hostname,
+      port: urlObj.port || (isHttps ? 443 : 80),
+      path: urlObj.pathname + urlObj.search,
+      method: options.method || 'GET',
+      headers: headers
+    };
+
+    const req = httpModule.request(reqOptions, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        resolve({
+          ok: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          text: () => Promise.resolve(data),
+          json: () => Promise.resolve(JSON.parse(data))
+        });
+      });
+    });
+
+    req.on('error', reject);
+
+    if (requestData) {
+      req.write(requestData);
+    }
+
+    req.end();
+  });
+};
 
 module.exports.handler = async (event, context) => {
   console.log('Incoming event:', {
@@ -113,7 +160,7 @@ module.exports.handler = async (event, context) => {
       }
 
       console.log('Exchanging code for tokens...');
-      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      const tokenResponse = await makeRequest('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `code=${encodeURIComponent(code)}&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&redirect_uri=${encodeURIComponent(callbackUrl)}&grant_type=authorization_code`
@@ -137,7 +184,7 @@ module.exports.handler = async (event, context) => {
       const tokens = await tokenResponse.json();
       console.log('Got tokens, fetching user info...');
 
-      const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      const userInfoResponse = await makeRequest('https://www.googleapis.com/oauth2/v2/userinfo', {
         headers: { 'Authorization': `Bearer ${tokens.access_token}` }
       });
 
