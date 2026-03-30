@@ -1357,6 +1357,8 @@ const startDoItTogether = (mode, question) => {
   document.getElementById("ditExitBtn")?.removeEventListener("click", exitDoItTogether);
   document.getElementById("ditPrevStepBtn")?.removeEventListener("click", handleDitPrevStep);
   document.getElementById("ditNextStepBtn")?.removeEventListener("click", handleDitNextStep);
+  document.getElementById("ditPrevStepBtn2")?.removeEventListener("click", handleDitPrevStep);
+  document.getElementById("ditNextStepBtn2")?.removeEventListener("click", handleDitNextStep);
   document.getElementById("ditToggleModeBtn")?.removeEventListener("click", toggleDoItTogetherMode);
   document.getElementById("ditRevealBtn")?.removeEventListener("click", revealCurrentStep);
   document.getElementById("ditSubmitBtn")?.removeEventListener("click", handleDitSubmit);
@@ -1365,6 +1367,8 @@ const startDoItTogether = (mode, question) => {
   document.getElementById("ditExitBtn")?.addEventListener("click", exitDoItTogether);
   document.getElementById("ditPrevStepBtn")?.addEventListener("click", handleDitPrevStep);
   document.getElementById("ditNextStepBtn")?.addEventListener("click", handleDitNextStep);
+  document.getElementById("ditPrevStepBtn2")?.addEventListener("click", handleDitPrevStep);
+  document.getElementById("ditNextStepBtn2")?.addEventListener("click", handleDitNextStep);
   document.getElementById("ditToggleModeBtn")?.addEventListener("click", toggleDoItTogetherMode);
   document.getElementById("ditRevealBtn")?.addEventListener("click", revealCurrentStep);
   document.getElementById("ditSubmitBtn")?.addEventListener("click", handleDitSubmit);
@@ -1504,9 +1508,14 @@ const showDoItTogetherStep = () => {
     ).join("");
   }
 
-  // Update button states
-  document.getElementById("ditPrevStepBtn").disabled = state.doItTogetherStepIndex === 0;
-  document.getElementById("ditNextStepBtn").disabled = state.doItTogetherStepIndex === state.doItTogetherSteps.length - 1;
+  // Update button states for both sets of navigation buttons
+  const isFirstStep = state.doItTogetherStepIndex === 0;
+  const isLastStep = state.doItTogetherStepIndex === state.doItTogetherSteps.length - 1;
+
+  document.getElementById("ditPrevStepBtn").disabled = isFirstStep;
+  document.getElementById("ditNextStepBtn").disabled = isLastStep;
+  document.getElementById("ditPrevStepBtn2").disabled = isFirstStep;
+  document.getElementById("ditNextStepBtn2").disabled = isLastStep;
 
   // Show/hide reveal button
   const revealBtn = document.getElementById("ditRevealBtn");
@@ -1532,7 +1541,6 @@ const showDoItTogetherStep = () => {
   }
 
   // Show answer input on last step
-  const isLastStep = state.doItTogetherStepIndex === state.doItTogetherSteps.length - 1;
   const answerPanel = document.getElementById("ditAnswerPanel");
   if (answerPanel) {
     answerPanel.classList.toggle("hidden", !isLastStep);
