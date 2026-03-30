@@ -14,6 +14,26 @@ const state = {
   timerRunning: false,
   timerHandle: null,
   practiceIndex: 0,
+  // Quick Practice state
+  quickPracticeActive: false,
+  quickPracticeScore: 0,
+  quickPracticeTotal: 0,
+  quickPracticeStreak: 0,
+  quickPracticeBestStreak: 0,
+  // Skill Check state
+  skillCheckActive: false,
+  skillCheckQuestions: [],
+  skillCheckIndex: 0,
+  skillCheckScore: 0,
+  skillCheckTimeRemaining: 0,
+  skillCheckTimerHandle: null,
+  // Progress tracking
+  progress: {
+    totalAnswered: 0,
+    totalCorrect: 0,
+    categories: {},
+    badges: [],
+  },
 };
 
 const questionGrid = document.getElementById("questionGrid");
@@ -45,10 +65,122 @@ const STORAGE_KEYS = {
   timer: "mathquest-timer-minutes",
   timerLegacy: "mathisfun-timer-minutes",
   imported: "mathquest-imported-questions",
+  progress: "mathquest-progress",
+  bestStreak: "mathquest-best-streak",
 };
+
+const BADGES = [
+  { id: "first_correct", name: "First Steps", icon: "🌟", desc: "Get your first answer correct" },
+  { id: "streak_5", name: "On Fire", icon: "🔥", desc: "Get a 5-question streak" },
+  { id: "streak_10", name: "Unstoppable", icon: "💪", desc: "Get a 10-question streak" },
+  { id: "speed demon", name: "Speed Demon", icon: "⚡", desc: "Answer in under 10 seconds" },
+  { id: "category_master", name: "Category Master", icon: "👑", desc: "Get 5 correct in one category" },
+  { id: "century", name: "Century", icon: "💯", desc: "Answer 100 questions" },
+];
 
 const unique = (items) => Array.from(new Set(items)).sort();
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const randomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+// Progress tracking
+const loadProgress = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.progress);
+    if (saved) {
+      state.progress = { ...state.progress, ...JSON.parse(saved) };
+    }
+    const savedBest = localStorage.getItem(STORAGE_KEYS.bestStreak);
+    if (savedBest) {
+      state.quickPracticeBestStreak = Number(savedBest);
+    }
+  } catch (e) {
+    console.error("Failed to load progress:", e);
+  }
+};
+
+const saveProgress = () => {
+  localStorage.setItem(STORAGE_KEYS.progress, JSON.stringify(state.progress));
+  localStorage.setItem(STORAGE_KEYS.bestStreak, String(state.quickPracticeBestStreak));
+};
+
+const recordAnswer = (isCorrect, category) => {
+  state.progress.totalAnswered++;
+  if (isCorrect) {
+    state.progress.totalCorrect++;
+  }
+  if (!state.progress.categories[category]) {
+    state.progress.categories[category] = { total: 0, correct: 0 };
+  }
+  state.progress.categories[category].total++;
+  if (isCorrect) {
+    state.progress.categories[category].correct++;
+  }
+  checkBadges();
+  saveProgress();
+};
+
+const checkBadges = () => {
+  const earned = [];
+
+  if (state.progress.totalCorrect >= 1 && !state.progress.badges.includes("first_correct")) {
+    earned.push("first_correct");
+  }
+  if (state.quickPracticeStreak >= 5 && !state.progress.badges.includes("streak_5")) {
+    earned.push("streak_5");
+  }
+  if (state.quickPracticeStreak >= 10 && !state.progress.badges.includes("streak_10")) {
+    earned.push("streak_10");
+  }
+  if (state.progress.totalAnswered >= 100 && !state.progress.badges.includes("century")) {
+    earned.push("century");
+  }
+
+  // Check category master
+  for (const [cat, data] of Object.entries(state.progress.categories)) {
+    if (data.correct >= 5 && !state.progress.badges.includes("category_master")) {
+      earned.push("category_master");
+      break;
+    }
+  }
+
+  earned.forEach((badgeId) => {
+    if (!state.progress.badges.includes(badgeId)) {
+      state.progress.badges.push(badgeId);
+      showBadgeToast(badgeId);
+    }
+  });
+};
+
+const showBadgeToast = (badgeId) => {
+  const badge = BADGES.find((b) => b.id === badgeId);
+  if (!badge) return;
+
+  const toast = document.createElement("div");
+  toast.className = "badge-toast";
+  toast.innerHTML = `
+    <span class="badge-toast-icon">${badge.icon}</span>
+    <div class="badge-toast-content">
+      <strong>Badge Unlocked!</strong>
+      <span>${badge.name}</span>
+    </div>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add("show"), 100);
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+};
+
+const getRandomQuestion = (categoryFilter) => {
+  const all = getAllQuestions();
+  let filtered = all;
+  if (categoryFilter && categoryFilter !== "all") {
+    filtered = all.filter((q) => q.category === categoryFilter);
+  }
+  if (filtered.length === 0) return null;
+  return randomElement(filtered);
+};
 
 const normalizeQuestions = (data, sourceLabel) => {
   if (!Array.isArray(data)) {
@@ -725,8 +857,14 @@ const init = async () => {
 
   loadImportedData();
   loadRole();
+  loadProgress();
   setRole(state.role);
   render();
+
+  // Setup game mode buttons
+  document.querySelectorAll(".game-mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => setGameMode(btn.dataset.mode));
+  });
 
   try {
     if (window.location.protocol === "file:" && Array.isArray(window.MATHISFUN_QUESTIONS)) {
@@ -747,6 +885,9 @@ const init = async () => {
     state.error = "";
     refreshFiltersAndStats();
     render();
+
+    // Start in browse mode
+    setGameMode("browse");
   } catch (error) {
     if (Array.isArray(window.MATHISFUN_QUESTIONS)) {
       try {
@@ -755,6 +896,7 @@ const init = async () => {
         state.error = "";
         refreshFiltersAndStats();
         render();
+        setGameMode("browse");
         return;
       } catch (fallbackError) {
         state.error = fallbackError.message;
@@ -814,3 +956,340 @@ exportCombinedBtn.addEventListener("click", exportCombinedQuestions);
 
 // Export init function for auth.js to call
 window.init = init;
+
+// ============= GAME MODES =============
+
+// Mode switching
+const gameModes = {
+  current: "browse",
+  previous: "browse",
+};
+
+const setGameMode = (mode) => {
+  gameModes.previous = gameModes.current;
+  gameModes.current = mode;
+
+  // Hide all panels
+  document.getElementById("quickPracticePanel")?.classList.add("hidden");
+  document.getElementById("skillCheckPanel")?.classList.add("hidden");
+  document.getElementById("skillCheckActivePanel")?.classList.add("hidden");
+  document.getElementById("skillCheckResultsPanel")?.classList.add("hidden");
+  document.getElementById("progressPanel")?.classList.add("hidden");
+  document.getElementById("mainControls")?.classList.add("hidden");
+  document.getElementById("questionGrid")?.classList.add("hidden");
+  document.getElementById("gameModesPanel")?.classList.add("hidden");
+
+  // Update button states
+  document.querySelectorAll(".game-mode-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.mode === mode);
+  });
+
+  // Show selected panel
+  switch (mode) {
+    case "quick":
+      document.getElementById("gameModesPanel")?.classList.remove("hidden");
+      document.getElementById("quickPracticePanel")?.classList.remove("hidden");
+      startQuickPractice();
+      break;
+    case "skill":
+      document.getElementById("gameModesPanel")?.classList.remove("hidden");
+      document.getElementById("skillCheckPanel")?.classList.remove("hidden");
+      renderSkillCheckCategories();
+      break;
+    case "browse":
+      document.getElementById("gameModesPanel")?.classList.remove("hidden");
+      document.getElementById("mainControls")?.classList.remove("hidden");
+      document.getElementById("questionGrid")?.classList.remove("hidden");
+      render();
+      break;
+    case "progress":
+      document.getElementById("gameModesPanel")?.classList.remove("hidden");
+      document.getElementById("progressPanel")?.classList.remove("hidden");
+      renderProgress();
+      break;
+  }
+};
+
+// ============= QUICK PRACTICE =============
+
+let quickPracticeQuestion = null;
+let quickPracticeAnswerTime = 0;
+
+const startQuickPractice = () => {
+  state.quickPracticeActive = true;
+  state.quickPracticeScore = 0;
+  state.quickPracticeTotal = 0;
+  state.quickPracticeStreak = 0;
+  quickPracticeQuestion = null;
+
+  document.getElementById("qpExitBtn")?.addEventListener("click", () => {
+    setGameMode("browse");
+  });
+
+  document.getElementById("qpSubmitBtn")?.addEventListener("click", submitQuickPracticeAnswer);
+  document.getElementById("qpAnswerInput")?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") submitQuickPracticeAnswer();
+  });
+
+  loadQuickPracticeQuestion();
+};
+
+const loadQuickPracticeQuestion = () => {
+  quickPracticeQuestion = getRandomQuestion(state.category !== "all" ? state.category : null);
+  if (!quickPracticeQuestion) {
+    document.getElementById("qpQuestionText").textContent = "No questions available!";
+    return;
+  }
+
+  document.getElementById("qpQuestionText").innerHTML = formatMath(quickPracticeQuestion.question);
+  document.getElementById("qpCategoryDisplay").textContent = quickPracticeQuestion.category;
+  document.getElementById("qpCountDisplay").textContent = `Question ${state.quickPracticeTotal + 1}`;
+  document.getElementById("qpStreakDisplay").textContent = `Streak: ${state.quickPracticeStreak}`;
+  document.getElementById("qpAnswerInput").value = "";
+  document.getElementById("qpFeedback").classList.add("hidden");
+  document.getElementById("qpAnswerInput").focus();
+  quickPracticeAnswerTime = Date.now();
+};
+
+const submitQuickPracticeAnswer = () => {
+  if (!quickPracticeQuestion) return;
+
+  const input = document.getElementById("qpAnswerInput").value.trim().toLowerCase();
+  if (!input) return;
+
+  const correct = normalizeAnswer(input) === normalizeAnswer(quickPracticeQuestion.answer);
+  const answerTime = (Date.now() - quickPracticeAnswerTime) / 1000;
+
+  state.quickPracticeTotal++;
+  if (correct) {
+    state.quickPracticeScore++;
+    state.quickPracticeStreak++;
+    if (state.quickPracticeStreak > state.quickPracticeBestStreak) {
+      state.quickPracticeBestStreak = state.quickPracticeStreak;
+    }
+  } else {
+    state.quickPracticeStreak = 0;
+  }
+
+  recordAnswer(correct, quickPracticeQuestion.category);
+  updateQuickPracticeScore();
+
+  const feedback = document.getElementById("qpFeedback");
+  feedback.classList.remove("hidden");
+  if (correct) {
+    feedback.className = "result-feedback correct";
+    feedback.innerHTML = `✓ Correct! ${answerTime < 10 ? "⚡ Speed bonus!" : ""}`;
+  } else {
+    feedback.className = "result-feedback incorrect";
+    feedback.innerHTML = `✗ Incorrect. The answer was: <strong>${quickPracticeQuestion.answer}</strong>`;
+  }
+
+  document.getElementById("qpSubmitBtn").disabled = true;
+
+  setTimeout(() => {
+    document.getElementById("qpSubmitBtn").disabled = false;
+    loadQuickPracticeQuestion();
+  }, correct ? 1500 : 2500);
+};
+
+const normalizeAnswer = (answer) => {
+  return String(answer)
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9\/\-]/g, "");
+};
+
+const updateQuickPracticeScore = () => {
+  document.getElementById("qpScoreCorrect").textContent = state.quickPracticeScore;
+  document.getElementById("qpScoreTotal").textContent = state.quickPracticeTotal;
+  const accuracy = state.quickPracticeTotal > 0
+    ? Math.round((state.quickPracticeScore / state.quickPracticeTotal) * 100)
+    : 0;
+  document.getElementById("qpAccuracy").textContent = `${accuracy}%`;
+  document.getElementById("qpStreakDisplay").textContent = `Streak: ${state.quickPracticeStreak}`;
+};
+
+// ============= SKILL CHECK =============
+
+let skillCheckCategory = null;
+let skillCheckTimeLimit = 120;
+
+const renderSkillCheckCategories = () => {
+  const grid = document.getElementById("skillCategoryGrid");
+  if (!grid) return;
+
+  const categories = unique(getAllQuestions().map((q) => q.category));
+  const categoryCounts = {};
+  getAllQuestions().forEach((q) => {
+    categoryCounts[q.category] = (categoryCounts[q.category] || 0) + 1;
+  });
+
+  grid.innerHTML = categories.map((cat) => `
+    <button class="skill-category-btn" data-category="${escapeHtml(cat)}">
+      <div class="cat-name">${escapeHtml(cat)}</div>
+      <div class="cat-count">${categoryCounts[cat]} questions</div>
+    </button>
+  `).join("");
+
+  grid.querySelectorAll(".skill-category-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      startSkillCheck(btn.dataset.category);
+    });
+  });
+
+  document.getElementById("scExitBtn")?.addEventListener("click", () => {
+    setGameMode("browse");
+  });
+};
+
+const startSkillCheck = (category) => {
+  skillCheckCategory = category;
+  const categoryQuestions = getAllQuestions().filter((q) => q.category === category);
+
+  // Pick 5 random questions
+  skillCheckQuestions = [];
+  const available = [...categoryQuestions];
+  for (let i = 0; i < Math.min(5, available.length); i++) {
+    const idx = Math.floor(Math.random() * available.length);
+    skillCheckQuestions.push(available[idx]);
+    available.splice(idx, 1);
+  }
+
+  state.skillCheckIndex = 0;
+  state.skillCheckScore = 0;
+  skillCheckTimeLimit = 120;
+
+  document.getElementById("skillCheckPanel").classList.add("hidden");
+  document.getElementById("skillCheckActivePanel").classList.remove("hidden");
+
+  document.getElementById("scCategoryDisplay").textContent = category;
+  document.getElementById("scExitBtn")?.addEventListener("click", () => {
+    stopSkillCheckTimer();
+    setGameMode("browse");
+  });
+  document.getElementById("scSubmitBtn")?.addEventListener("click", submitSkillCheckAnswer);
+  document.getElementById("scAnswerInput")?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") submitSkillCheckAnswer();
+  });
+  document.getElementById("scRetryBtn")?.addEventListener("click", () => {
+    startSkillCheck(skillCheckCategory);
+  });
+  document.getElementById("scBackBtn")?.addEventListener("click", () => {
+    document.getElementById("skillCheckResultsPanel").classList.add("hidden");
+    document.getElementById("skillCheckPanel").classList.remove("hidden");
+  });
+
+  startSkillCheckTimer();
+  loadSkillCheckQuestion();
+};
+
+const startSkillCheckTimer = () => {
+  stopSkillCheckTimer();
+  state.skillCheckTimerHandle = setInterval(() => {
+    skillCheckTimeLimit--;
+    const mm = String(Math.floor(skillCheckTimeLimit / 60)).padStart(2, "0");
+    const ss = String(skillCheckTimeLimit % 60).padStart(2, "0");
+    document.getElementById("scTimerDisplay").textContent = `${mm}:${ss}`;
+
+    if (skillCheckTimeLimit <= 0) {
+      stopSkillCheckTimer();
+      endSkillCheck();
+    }
+  }, 1000);
+};
+
+const stopSkillCheckTimer = () => {
+  if (state.skillCheckTimerHandle) {
+    clearInterval(state.skillCheckTimerHandle);
+    state.skillCheckTimerHandle = null;
+  }
+};
+
+const loadSkillCheckQuestion = () => {
+  const q = skillCheckQuestions[state.skillCheckIndex];
+  if (!q) {
+    endSkillCheck();
+    return;
+  }
+
+  document.getElementById("scQuestionText").innerHTML = formatMath(q.question);
+  document.getElementById("scProgressDisplay").textContent = `Question ${state.skillCheckIndex + 1} of ${skillCheckQuestions.length}`;
+  document.getElementById("scAnswerInput").value = "";
+  document.getElementById("scFeedback").classList.add("hidden");
+  document.getElementById("scAnswerInput").focus();
+};
+
+const submitSkillCheckAnswer = () => {
+  const q = skillCheckQuestions[state.skillCheckIndex];
+  if (!q) return;
+
+  const input = document.getElementById("scAnswerInput").value.trim().toLowerCase();
+  if (!input) return;
+
+  const correct = normalizeAnswer(input) === normalizeAnswer(q.answer);
+
+  if (correct) {
+    state.skillCheckScore++;
+  }
+
+  recordAnswer(correct, q.category);
+
+  const feedback = document.getElementById("scFeedback");
+  feedback.classList.remove("hidden");
+  if (correct) {
+    feedback.className = "result-feedback correct";
+    feedback.textContent = "✓ Correct!";
+  } else {
+    feedback.className = "result-feedback incorrect";
+    feedback.innerHTML = `✗ Answer: <strong>${q.answer}</strong>`;
+  }
+
+  document.getElementById("scSubmitBtn").disabled = true;
+
+  setTimeout(() => {
+    document.getElementById("scSubmitBtn").disabled = false;
+    state.skillCheckIndex++;
+    loadSkillCheckQuestion();
+  }, correct ? 1000 : 2000);
+};
+
+const endSkillCheck = () => {
+  stopSkillCheckTimer();
+  document.getElementById("skillCheckActivePanel").classList.add("hidden");
+  document.getElementById("skillCheckResultsPanel").classList.remove("hidden");
+
+  document.getElementById("scResultsCategory").textContent = skillCheckCategory;
+  document.getElementById("scFinalScore").textContent = `${state.skillCheckScore}/${skillCheckQuestions.length}`;
+  const accuracy = Math.round((state.skillCheckScore / skillCheckQuestions.length) * 100);
+  document.getElementById("scFinalAccuracy").textContent = `${accuracy}%`;
+};
+
+// ============= PROGRESS =============
+
+const renderProgress = () => {
+  document.getElementById("progTotalAnswered").textContent = state.progress.totalAnswered;
+  document.getElementById("progTotalCorrect").textContent = state.progress.totalCorrect;
+  const accuracy = state.progress.totalAnswered > 0
+    ? Math.round((state.progress.totalCorrect / state.progress.totalAnswered) * 100)
+    : 0;
+  document.getElementById("progAccuracy").textContent = `${accuracy}%`;
+  document.getElementById("progBestStreak").textContent = state.quickPracticeBestStreak;
+
+  const badgesGrid = document.getElementById("badgesGrid");
+  if (!badgesGrid) return;
+
+  badgesGrid.innerHTML = BADGES.map((badge) => {
+    const earned = state.progress.badges.includes(badge.id);
+    return `
+      <div class="badge-item ${earned ? "earned" : ""}">
+        <div class="badge-item__icon">${badge.icon}</div>
+        <div class="badge-item__name">${badge.name}</div>
+        <div class="badge-item__desc">${badge.desc}</div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("progressBackBtn")?.addEventListener("click", () => {
+    setGameMode("browse");
+  });
+};
