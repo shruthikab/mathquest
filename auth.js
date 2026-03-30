@@ -4,6 +4,9 @@ const AuthModule = {
   user: null,
 
   init() {
+    // Check for Google OAuth callback FIRST (before any auth checks)
+    this.handleGoogleCallback();
+
     // Load token from localStorage
     const savedToken = localStorage.getItem('mathquest-auth-token');
     const savedUser = localStorage.getItem('mathquest-user');
@@ -16,9 +19,6 @@ const AuthModule = {
     this.bindEvents();
     this.checkAuth();
 
-    // Check for Google OAuth callback
-    this.handleGoogleCallback();
-
     // Set initial tab state - show login form by default
     this.switchTab('login');
   },
@@ -29,16 +29,29 @@ const AuthModule = {
     const token = urlParams.get('token');
     const userParam = urlParams.get('user');
 
+    console.log('Google callback:', { isGoogleAuth, token: token ? 'present' : 'missing', userParam: userParam ? 'present' : 'missing' });
+
     if (isGoogleAuth && token && userParam) {
       try {
         this.token = token;
+        // URLSearchParams already decodes, but user param was double-encoded
         this.user = JSON.parse(decodeURIComponent(userParam));
+        console.log('Google user:', this.user);
         this.showApp();
 
         // Clean up URL
         window.history.replaceState({}, document.title, '/');
       } catch (error) {
         console.error('Failed to parse Google auth data:', error);
+        // Try without decodeURIComponent in case it's already decoded
+        try {
+          this.user = JSON.parse(userParam);
+          this.token = token;
+          this.showApp();
+          window.history.replaceState({}, document.title, '/');
+        } catch (error2) {
+          console.error('Failed to parse user (second attempt):', error2);
+        }
       }
     }
   },
@@ -103,6 +116,11 @@ const AuthModule = {
     const loginScreen = document.getElementById('loginScreen');
     const mainApp = document.getElementById('mainApp');
 
+    // If we already showed the app from Google callback, don't interfere
+    if (this.user && mainApp && !mainApp.classList.contains('hidden')) {
+      return;
+    }
+
     if (!this.token) {
       // Show login screen
       if (loginScreen) loginScreen.classList.remove('hidden');
@@ -132,6 +150,7 @@ const AuthModule = {
   },
 
   showApp() {
+    console.log('showApp() called with user:', this.user);
     const loginScreen = document.getElementById('loginScreen');
     const mainApp = document.getElementById('mainApp');
     const userNameDisplay = document.getElementById('userNameDisplay');
